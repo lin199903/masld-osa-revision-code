@@ -1,0 +1,16 @@
+name: masld-osa-revision1
+channels:
+  - conda-forge
+dependencies:
+  - r-base=4.5.1
+  - r-essentials
+  - r-caret
+  - r-dplyr
+  - r-fastshap
+  - r-ggplot2
+  - r-glmnet
+  - r-MASS
+  - r-pROC
+  - r-PRROC
+  - r-yaml
+  - r-zip

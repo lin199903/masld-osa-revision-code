@@ -1,0 +1,134 @@
+revision:
+  seed: 20260306
+  timestamp_format: '%Y%m%d_%H%M%S'
+
+manuscript_locked_fig4:
+  enabled: true
+  source_dir: 'manual_data/locked_main_figure4'
+  files:
+    - model_performance_visualization_ALL.pdf
+
+paths:
+  frontiers_main_tex: '../Frontiers_LaTeX_Templates/NAFLD-OSA_frontiers.tex'
+  frontiers_supp_tex: '../Frontiers_LaTeX_Templates/NAFLD-OSA_frontiers_supp.tex'
+  frontiers_figures_dir: '../Frontiers_LaTeX_Templates/figures'
+  manual_negative_control_dir: 'manual_data/negative_controls'
+  geo_cache_dir: 'cache/geo'
+  train_expr: '../step1/1.3.1_Train_GSE89632/data/GSE89632_expression_matrix.csv'
+  train_pheno: '../step1/1.3.1_Train_GSE89632/data/GSE89632_pdata.csv'
+  external_expr: '../step1/1.3.2_Meta_GSE135251/data/GSE135251_expression_matrix.csv'
+  external_pheno: '../step1/1.3.2_Meta_GSE135251/data/GSE135251_pdata.csv'
+  discovery_expr: '../step1/1.1_NAFLD_Discovery/data/NAFLD_BatchCorrected_VST.csv'
+  discovery_pheno: '../step1/1.1_NAFLD_Discovery/data/NAFLD_pdata.csv'
+  cross_disease_genes: '../step1/1.5_Core_Comorbidity_Genes/data/cross_disease_genes.txt'
+  mr_root: '../step5/MR_Results_2026-02-02_11-45'
+  gse38792_series: '../GSE38792_series_matrix.txt.gz'
+  gse75097_series: '../GSE75097_series_matrix.txt.gz'
+  gse135917_series: '../GSE135917_series_matrix.txt.gz'
+  gse89632_series: '../GSE89632_series_matrix.txt.gz'
+  gse135251_series: '../GSE135251_series_matrix.txt.gz'
+  gse38792_pdata: '../step1/1.4_OSA_Validation/data/GSE38792_pdata.csv'
+  gse75097_pdata: '../step1/1.4_OSA_Validation/data/GSE75097_pdata.csv'
+  gse135917_pdata: '../step1/1.4_OSA_Validation/data/GSE135917_CPAP_pdata.csv'
+  previous_ml_oof: '../step3/OOF_outer_SVM_RFE_LDA.csv'
+
+cohorts:
+  train:
+    id: GSE89632
+    label: MASLD liver training cohort
+    sample_col: Sample_ID
+    group_col: Group
+    positive_label: NAFLD
+    control_label: Control
+  external:
+    id: GSE135251
+    label: MASLD liver external cohort
+    sample_col: Sample_ID
+    group_col: Group
+    positive_label: NAFLD
+    control_label: Control
+  discovery_batches:
+    expression_cohort_ids:
+      - GSE126848
+      - GSE130970
+
+ihs:
+  genes:
+    - BCL2A1
+    - HK2
+    - IL1B
+    - PLAUR
+    - SLC2A1
+  definition: reviewer-boundary auxiliary marker score (not the manuscript primary locked 10-gene model output)
+
+ml:
+  candidate_gene_source: cross_disease_genes
+  outer_folds: 5
+  inner_folds: 5
+  alpha_grid:
+    - 0.0
+    - 0.5
+    - 1.0
+  lambda_rule: lambda.1se
+  probability_positive_label: NAFLD
+
+negative_controls:
+  candidate_gse:
+    - accession: GSE28619
+      disease: ALD_or_alcoholic_hepatitis
+      title: Alcoholic hepatitis with healthy controls (primary ALD/AH negative control)
+      priority: 1
+      manual_subdir: GSE28619
+      expected_case_labels:
+        - alcoholic hepatitis
+        - ah
+        - alcoholic hepatitis severe
+      expected_control_labels:
+        - healthy control
+        - healthy
+        - control
+      case_regex: '(alcoholic\\s*hepatitis|\\bah\\b|alcoholic\\s*liver)'
+      control_regex: '(healthy|normal|control)'
+    - accession: GSE103580
+      disease: ALD_or_alcoholic_hepatitis
+      title: Alcoholic liver disease / alcoholic hepatitis liver transcriptome (secondary ALD/AH negative control)
+      priority: 2
+      manual_subdir: GSE103580
+      expected_case_labels:
+        - alcoholic hepatitis
+        - alcoholic liver disease
+        - ald
+        - ah
+      expected_control_labels:
+        - healthy control
+        - healthy
+        - control
+      case_regex: '(alcoholic\\s*hepatitis|alcoholic\\s*liver\\s*disease|\\bald\\b|\\bah\\b)'
+      control_regex: '(healthy|normal|control)'
+  local_misannotated_series:
+    - accession: GSE130970
+      actual_annotation: NAFLD_liver_not_negative_control
+    - accession: GSE135917
+      actual_annotation: OSA_subcutaneous_fat_not_negative_control
+    - accession: GSE75097
+      actual_annotation: OSA_PBMC_not_negative_control
+
+latex:
+  figure_aliases:
+    model_performance_visualization_ALL.pdf: outputs/figures_main/model_performance_visualization_ALL.pdf
+    Combined_ROC_Calibration_SVM_RFE_LDA.pdf: outputs/figures_main/Combined_ROC_Calibration_SVM_RFE_LDA.pdf
+    PRC_Combined_SVM_RFE_LDA.pdf: outputs/figures_main/PRC_Combined_SVM_RFE_LDA.pdf
+    PRC_Inverted_ControlPositive_SVM_RFE_LDA.pdf: outputs/figures_main/PRC_Inverted_ControlPositive_SVM_RFE_LDA.pdf
+    DCA_curve_external_realprob.pdf: outputs/figures_supp/DCA_curve_external_realprob.pdf
+    SHAP_Main_OuterOOF_SVM_RFE_LDA_GlobalBar.pdf: outputs/figures_supp/SHAP_Main_OuterOOF_SVM_RFE_LDA_GlobalBar.pdf
+    RiskScore_OuterOOF.pdf: outputs/figures_supp/RiskScore_OuterOOF.pdf
+  supplementary_assets:
+    rev1_negative_control_specificity.pdf: outputs/figures_supp/rev1_negative_control_specificity.pdf
+    rev1_mr_sensitivity_summary.pdf: outputs/figures_supp/rev1_mr_sensitivity_summary.pdf
+    Table_NegControl_IHS_Performance_Comparison.tex: outputs/tables/Table_NegControl_IHS_Performance_Comparison.tex
+    Table_NegControl_DescriptiveOnly_Distribution.tex: outputs/tables/Table_NegControl_DescriptiveOnly_Distribution.tex
+    Table_NegControl_Analysis_Status.tex: outputs/tables/Table_NegControl_Analysis_Status.tex
+    Table_MR_Sensitivity_Summary.tex: outputs/tables/Table_MR_Sensitivity_Summary.tex
+    Table_DCA_Incremental_vs_SLC2A1_KeyThresholds.tex: outputs/tables/Table_DCA_Incremental_vs_SLC2A1_KeyThresholds.tex
+    Table1_Supplement_Hypoxia_Parameters.tex: outputs/tables/Table1_Supplement_Hypoxia_Parameters.tex
+    Table1_Hypoxia_Metadata_Completeness.tex: outputs/tables/Table1_Hypoxia_Metadata_Completeness.tex

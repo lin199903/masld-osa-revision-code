@@ -1,0 +1,9 @@
+# Ignore temporary and generated artifacts
+.Rhistory
+.RData
+.Rproj.user/
+outputs/logs/
+outputs/figures_main/
+outputs/figures_supp/
+outputs/tables/
+outputs/tmp*
