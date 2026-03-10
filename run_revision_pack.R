@@ -62,6 +62,18 @@ steps <- c(
   "09_export_for_zenodo.R"
 )
 
+# Optional safety switch for local reruns where external sync must be disabled.
+# Default behavior stays unchanged (all steps run).
+skip_export <- tolower(Sys.getenv("REVISION_SKIP_EXPORT", unset = "0")) %in% c("1", "true", "yes")
+if (skip_export) {
+  steps <- setdiff(steps, "09_export_for_zenodo.R")
+  log_message(
+    REVISION_CONTEXT,
+    "run_revision_pack",
+    "REVISION_SKIP_EXPORT is enabled; step 09_export_for_zenodo.R is skipped for this run."
+  )
+}
+
 results <- data.frame(step = steps, status = "pending", message = NA_character_, stringsAsFactors = FALSE)
 
 for (i in seq_along(steps)) {
