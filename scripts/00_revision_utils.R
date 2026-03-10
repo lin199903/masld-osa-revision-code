@@ -346,7 +346,7 @@ baseline_decision_curves <- function(y, thresholds = seq(0.05, 0.95, by = 0.05))
   )
 }
 
-simple_latex_table <- function(df, path, caption = NULL, label = NULL) {
+simple_latex_table <- function(df, path, caption = NULL, label = NULL, resize_to_textwidth = FALSE) {
   latex_escape <- function(x) {
     x <- as.character(x)
     x <- gsub("\\\\", "\\\\textbackslash{}", x, perl = TRUE)
@@ -363,6 +363,9 @@ simple_latex_table <- function(df, path, caption = NULL, label = NULL) {
   if (!is.null(label)) {
     lines <- c(lines, paste0("\\label{", label, "}"))
   }
+  if (isTRUE(resize_to_textwidth)) {
+    lines <- c(lines, "\\resizebox{\\textwidth}{!}{%")
+  }
   lines <- c(
     lines,
     paste0("\\begin{tabular}{", paste(rep("l", ncol(df)), collapse = ""), "}"),
@@ -371,9 +374,12 @@ simple_latex_table <- function(df, path, caption = NULL, label = NULL) {
     "\\hline",
     paste0(rows, " \\\\"),
     "\\hline",
-    "\\end{tabular}",
-    "\\end{table}"
+    "\\end{tabular}"
   )
+  if (isTRUE(resize_to_textwidth)) {
+    lines <- c(lines, "}")
+  }
+  lines <- c(lines, "\\end{table}")
   write_text_file(path, lines)
   invisible(path)
 }

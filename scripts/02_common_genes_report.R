@@ -290,8 +290,9 @@ run_step <- function(context) {
   simple_latex_table(
     latex_df,
     latex_path,
-    caption = "Auxiliary reviewer-boundary score performance in target MASLD cohorts and available ALD/AH negative-control cohorts (primary manuscript claims remain locked to the 10-gene model output).",
-    label = "tab:rev1_negcontrol"
+    caption = "Auxiliary reviewer-boundary score performance in target MASLD cohorts and available ALD/AH negative-control cohorts. These values are boundary-setting contextual checks from the negative-control module, not the primary locked-model performance estimates reported in Fig.~4, and should not be interpreted as replacing the main 10-gene claim.",
+    label = "tab:rev1_negcontrol",
+    resize_to_textwidth = TRUE
   )
 
   # Additional transparency outputs for descriptive-only cohorts and status audit.
@@ -330,7 +331,8 @@ run_step <- function(context) {
       descriptive_latex,
       descriptive_latex_path,
       caption = "Descriptive-only negative-control cohorts (single-class) with auxiliary reviewer-boundary score distribution summaries.",
-      label = "tab:rev1_negcontrol_descriptive"
+      label = "tab:rev1_negcontrol_descriptive",
+      resize_to_textwidth = TRUE
     )
   } else {
     write.csv(data.frame(), descriptive_dist_path, row.names = FALSE)
@@ -371,10 +373,15 @@ run_step <- function(context) {
   facet_levels <- unique(c(as.character(summary_df$dataset_label), as.character(score_df$dataset_label)))
   facet_levels <- facet_levels[!is.na(facet_levels) & nzchar(facet_levels)]
   boxplot_data$dataset_label <- factor(boxplot_data$dataset_label, levels = facet_levels)
+  plot_seed <- suppressWarnings(as.integer(config$revision$seed))
+  if (!is.finite(plot_seed)) {
+    plot_seed <- 20260306L
+  }
+  jitter_pos <- ggplot2::position_jitter(width = 0.1, height = 0, seed = plot_seed)
 
   p <- ggplot2::ggplot(boxplot_data, ggplot2::aes(x = group, y = ihs_score, fill = group)) +
     ggplot2::geom_boxplot(width = 0.7, outlier.shape = NA, alpha = 0.8) +
-    ggplot2::geom_jitter(width = 0.1, alpha = 0.6, size = 1.5) +
+    ggplot2::geom_jitter(position = jitter_pos, alpha = 0.6, size = 1.5) +
     ggplot2::facet_wrap(~ dataset_label, scales = "free_y") +
     ggplot2::scale_fill_manual(values = c("Control" = "#4F6D7A", "NAFLD" = "#C44E52", "Disease" = "#C44E52")) +
     ggplot2::labs(

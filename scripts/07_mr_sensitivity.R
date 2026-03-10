@@ -76,7 +76,13 @@ run_step <- function(context) {
   numeric_cols <- vapply(latex_df, is.numeric, logical(1))
   latex_df[numeric_cols] <- lapply(latex_df[numeric_cols], function(x) sprintf("%.3g", x))
   latex_path <- file.path(context$tables_dir, "Table_MR_Sensitivity_Summary.tex")
-  simple_latex_table(latex_df, latex_path, caption = "MR sensitivity summary including directionality, pleiotropy, heterogeneity, and leave-one-out ranges.", label = "tab:rev1_mr")
+  simple_latex_table(
+    latex_df,
+    latex_path,
+    caption = "MR sensitivity summary including directionality, pleiotropy, heterogeneity, and leave-one-out ranges.",
+    label = "tab:rev1_mr",
+    resize_to_textwidth = TRUE
+  )
 
   plot_df <- combined_df[, c("Direction", "Method", "OR", "OR_lci", "OR_uci")]
   plot_df$Method <- factor(plot_df$Method, levels = rev(unique(plot_df$Method)))

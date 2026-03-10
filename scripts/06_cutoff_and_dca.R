@@ -144,9 +144,8 @@ run_step <- function(context) {
   write.csv(cutoff_df, cutoff_path, row.names = FALSE)
 
   dca_thresholds <- seq(0.05, 0.90, by = 0.05)
-  ihs_model_name <- "Locked 10-gene IHS score"
   dca_df <- rbind(
-    decision_curve_df(ext_aligned$y, ext_prob_ihs, model_name = ihs_model_name, thresholds = dca_thresholds),
+    decision_curve_df(ext_aligned$y, ext_prob_ihs, model_name = "IHS exploratory score", thresholds = dca_thresholds),
     decision_curve_df(ext_aligned$y, ext_prob_slc2a1, model_name = "SLC2A1-only", thresholds = dca_thresholds),
     baseline_decision_curves(ext_aligned$y, thresholds = dca_thresholds)
   )
@@ -162,16 +161,15 @@ run_step <- function(context) {
   dca_cmp <- Reduce(
     function(x, y) merge(x, y, by = "threshold", all = TRUE),
     list(
-      get_model_nb(ihs_model_name),
+      get_model_nb("IHS exploratory score"),
       get_model_nb("SLC2A1-only"),
       get_model_nb("Treat all"),
       get_model_nb("Treat none")
     )
   )
-  ihs_nb_col <- paste0("net_benefit_", gsub("[^A-Za-z0-9]+", "_", tolower(ihs_model_name)))
-  dca_cmp$delta_ihs_vs_slc2a1 <- dca_cmp[[ihs_nb_col]] - dca_cmp$net_benefit_slc2a1_only
-  dca_cmp$delta_ihs_vs_treat_all <- dca_cmp[[ihs_nb_col]] - dca_cmp$net_benefit_treat_all
-  dca_cmp$delta_ihs_vs_treat_none <- dca_cmp[[ihs_nb_col]] - dca_cmp$net_benefit_treat_none
+  dca_cmp$delta_ihs_vs_slc2a1 <- dca_cmp$net_benefit_ihs_exploratory_score - dca_cmp$net_benefit_slc2a1_only
+  dca_cmp$delta_ihs_vs_treat_all <- dca_cmp$net_benefit_ihs_exploratory_score - dca_cmp$net_benefit_treat_all
+  dca_cmp$delta_ihs_vs_treat_none <- dca_cmp$net_benefit_ihs_exploratory_score - dca_cmp$net_benefit_treat_none
   dca_cmp <- dca_cmp[order(dca_cmp$threshold), , drop = FALSE]
   dca_cmp_path <- file.path(context$tables_dir, "Table_DCA_Incremental_vs_SLC2A1.csv")
   write.csv(dca_cmp, dca_cmp_path, row.names = FALSE)
@@ -180,7 +178,7 @@ run_step <- function(context) {
   key_mask <- vapply(dca_cmp$threshold, function(th) any(abs(th - key_thresholds) < 1e-10), logical(1))
   dca_key <- dca_cmp[key_mask, c(
     "threshold",
-    ihs_nb_col,
+    "net_benefit_ihs_exploratory_score",
     "net_benefit_slc2a1_only",
     "delta_ihs_vs_slc2a1",
     "net_benefit_treat_all",
@@ -206,8 +204,8 @@ run_step <- function(context) {
   dca_summary_path <- file.path(context$tables_dir, "DCA_Incremental_Summary.txt")
   write_text_file(dca_summary_path, c(
     sprintf("Threshold points evaluated: %d", nrow(dca_cmp)),
-    sprintf("Threshold points where locked 10-gene IHS net benefit > SLC2A1-only: %d", better_vs_slc2a1),
-    sprintf("Threshold points where locked 10-gene IHS net benefit > Treat-none: %d", better_vs_none),
+    sprintf("Threshold points where IHS net benefit > SLC2A1-only: %d", better_vs_slc2a1),
+    sprintf("Threshold points where IHS net benefit > Treat-none: %d", better_vs_none),
     "Interpretation: in this case-enriched external cohort, DCA is descriptive and not intended for population-level net-benefit inference."
   ))
 
